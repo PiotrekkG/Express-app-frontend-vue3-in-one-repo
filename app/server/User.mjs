@@ -109,8 +109,4 @@ export default class User extends SimpleSendData {
             name: this.name,
         }
     }
-
-    // toString() {
-    //     return JSON.stringify(this.toSendData());
-    // }
 }

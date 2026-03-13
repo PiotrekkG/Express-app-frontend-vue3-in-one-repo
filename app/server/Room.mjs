@@ -1,7 +1,4 @@
-import SimpleSendData from "./SimpleSendData.mjs";
-import Log from "./Log.mjs";
 import User from "./User.mjs";
-import cryko from 'node:crypto';
 
 export default class Room extends SimpleSendData {
     /** @type {User[]} */
@@ -97,8 +94,4 @@ export default class Room extends SimpleSendData {
             users: this.users.map(user => user.toSendData()),
         }
     }
-
-    // toString() {
-    //     return JSON.stringify(this.toSendData());
-    // }
 }
