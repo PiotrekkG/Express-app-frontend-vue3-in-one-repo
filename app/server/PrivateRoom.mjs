@@ -1,16 +1,14 @@
 import Room from "./Room.mjs";
 import User from "./User.mjs";
 import Log from "./Log.mjs";
-import GameManager from "./GameManager.mjs";
+import GameManager from "./RoomManager.mjs";
 
-export default class GameRoom extends Room {
+export default class PrivateRoom extends Room {
     maxPlayers = 5;
 
     constructor(id) {
         super(id);
         this.logChat = true;
-
-        // this.canvasCtx = this.canvasObj.getContext('2d', { willReadFrequently: true });
     }
 
     /** @param {User} user */
@@ -19,7 +17,7 @@ export default class GameRoom extends Room {
             super.addUser(user, true);
             user.send(new Log('roomData', { room: this.toSendData() }));
 
-            GameManager.gameRoomChangedStatus(this);
+            GameManager.privateRoomChangedStatus(this);
             return true;
         } else {
             user.send({ type: 'error', data: { message: 'Room is full' } });
@@ -30,7 +28,7 @@ export default class GameRoom extends Room {
     /** @param {User} user */
     removeUser(user) {
         super.removeUser(user);
-        GameManager.gameRoomChangedStatus(this);
+        GameManager.privateRoomChangedStatus(this);
     }
 
     // rebuild function to allow only props needed for client and remove others that are not allowed/required to be sent to client

@@ -1,6 +1,6 @@
 import SimpleSendData from "./SimpleSendData.mjs";
 import Log from "./Log.mjs";
-import GameManager from "./GameManager.mjs";
+import GameManager from "./RoomManager.mjs";
 
 export default class User extends SimpleSendData {
     constructor(socket, id, name, skinId) {
@@ -90,7 +90,7 @@ export default class User extends SimpleSendData {
             if(this.room?.id !== 'lobby') return true; // cannot join another room from a non-lobby room
             if(this.room?.id === message.data.roomId) return true; // already in this room
 
-            const room = GameManager.getGameRoomById(message.data.roomId);
+            const room = GameManager.getPrivateRoomById(message.data.roomId);
             if(room) {
                 if(this.joinRoom(room)) {
                     return true;

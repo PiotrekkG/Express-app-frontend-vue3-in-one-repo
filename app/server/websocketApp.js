@@ -8,15 +8,15 @@ import websocket from 'websocket';
 import crypto from 'node:crypto';
 import { sessionParser } from './expressApp.mjs';
 import User from './User.mjs';
-import GameManager from './GameManager.mjs';
+import GameManager from './RoomManager.mjs';
 
-GameManager.addGameRoom().maxPlayers = 2;
-GameManager.addGameRoom().maxPlayers = 2;
-GameManager.addGameRoom().maxPlayers = 3;
-GameManager.addGameRoom().maxPlayers = 4;
-GameManager.addGameRoom();
-GameManager.addGameRoom();
-GameManager.addGameRoom();
+GameManager.addPrivateRoom().maxPlayers = 2;
+GameManager.addPrivateRoom().maxPlayers = 2;
+GameManager.addPrivateRoom().maxPlayers = 3;
+GameManager.addPrivateRoom().maxPlayers = 4;
+GameManager.addPrivateRoom();
+GameManager.addPrivateRoom();
+GameManager.addPrivateRoom();
 
 const connectedUsers = {};
 

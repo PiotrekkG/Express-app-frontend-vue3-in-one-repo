@@ -11,7 +11,6 @@ import multer from 'multer';
 
 import { fileURLToPath } from 'url';
 import path from 'path';
-// import { dirname } from 'path';
 import { readdirSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,9 +34,7 @@ try {
         resave: sessionsdbConfig.resave,
         saveUninitialized: sessionsdbConfig.saveUninitialized
     });
-    app.use(sessionParser);
-} catch (error) {
-    console.error('MySQL session store not initialized:', error);
+
     // const SQLiteStoreInstance = SQLiteStore(session);
     // sessionParser = session({
     //     key: 'plsid',
@@ -47,6 +44,10 @@ try {
     //     saveUninitialized: sessionsdbConfig.saveUninitialized,
     //     resave: sessionsdbConfig.resave,
     // });
+
+    app.use(sessionParser);
+} catch (error) {
+    console.error('MySQL session store not initialized:', error);
     sessionParser = session({
         key: 'plsid',
         cookie: { maxAge: sessionsdbConfig.expiration },
@@ -69,9 +70,6 @@ app.use(function (req, res, next) {
 // app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 //     extended: !true
 // }));
-
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
 
 app.use(multer().none()); // to support multipart/form-data (for forms without file uploads)
 
