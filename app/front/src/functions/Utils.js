@@ -119,6 +119,10 @@ export function timeString(date, withSeconds = true) {
   return `${padZero(date.getHours())}:${padZero(date.getMinutes())}${withSeconds ? `:${padZero(date.getSeconds())}` : ''}`
 }
 
+export function padZero(num) {
+  return num.toString().padStart(2, '0');
+}
+
 export function dateTimeInput(date, withSeconds = false) {
   if (!date)
     date = new Date();

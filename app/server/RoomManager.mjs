@@ -1,6 +1,7 @@
 import LobbyRoom from "./LobbyRoom.mjs";
 import PrivateRoom from "./PrivateRoom.mjs";
 import Log from "./Log.mjs";
+import User from "./User.mjs";
 
 export default class GameManager {
     /** @type {Object.<string, User>} */

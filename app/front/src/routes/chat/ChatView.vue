@@ -13,22 +13,19 @@
       </span>
     </div>
     <div>
-      <div class="row" style="min-height: 400px;">
+      <div class="row">
         <div v-if="currentRoom && currentRoom.id == 'lobby'" class="col-6">
-          <!-- <h2 class="text-center">LOBBY</h2> -->
-          <!-- <p class="text-center">Wybierz pokój, do którego chcesz dołączyć, lub stwórz nowy.</p> -->
+          <h2 class="text-center">LOBBY</h2>
+          <p class="text-center">Wybierz pokój, do którego chcesz dołączyć, stwórz nowy lub czatuj w lobby.</p>
           <div class="d-flex justify-content-center mb-3">
             <button class="btn btn-primary me-2" @click="createRoom">Stwórz nowy pokój</button>
-            <!-- <button class="btn btn-secondary" @click="refreshRooms">Odśwież listę pokoi</button> -->
           </div>
-          <div v-if="roomList.length === 0" class="text-center text-muted">Brak dostępnych pokoi. Stwórz nowy lub
-            poczekaj
-            aż jakiś się pojawi.</div>
+          <div v-if="roomList.length === 0" class="text-center text-muted">Brak widocznych pokoi. Stwórz nowy lub
+            poczekaj aż jakiś się pojawi.</div>
           <ul class="list-group" v-else>
-            <li v-for="room in roomList" :key="room.id"
+            <li v-for="room in roomList" :key="room.id" :title="`Room ID: ${room.id}`"
               class="list-group-item d-flex justify-content-between align-items-center">
-              <!-- {{ room.id }} -->
-              Oczekuje na graczy... ({{ room.players }}/{{ room.maxPlayers }})
+              Oczekuje na osoby... ({{ room.players }}/{{ room.maxPlayers }})
               <button class="btn btn-success btn-sm" @click="joinRoom(room.id)"
                 :disabled="room.players >= room.maxPlayers">Dołącz</button>
             </li>
@@ -36,15 +33,14 @@
         </div>
         <div v-else-if="currentRoom" class="col-6">
           <button class="btn btn-success btn-sm w-100" @click="leaveRoom()">Opuść pokój</button>
-          Oczekiwanie na start gry... ({{ currentRoom.users.length }}/{{ currentRoom.maxPlayers }})
         </div>
         <div v-else class="col-6">
           ...
         </div>
 
         <div class="col-6">
-          Gracze w pokoju:
-          <div v-if="currentRoom?.users.length === 0" class="text-center text-muted">Brak graczy w obecnym pokoju.</div>
+          Osoby w pokoju<span v-if="currentRoom && currentRoom.maxPlayers !== undefined"> ({{ currentRoom.users.length }}/{{ currentRoom.maxPlayers }})</span>:
+          <div v-if="currentRoom?.users.length === 0" class="text-center text-muted">Brak osoby w obecnym pokoju.</div>
           <ul class="list-group" v-else>
             <li v-for="user in currentRoom?.users" :key="user.id" :title="`ID: ${user}`"
               class="list-group-item d-flex justify-content-between align-items-center">
@@ -83,7 +79,7 @@
           <div v-else>
             <span class="text-info me-1">{{ message }}</span>
           </div>
-          <!-- <span class="badge text-bg-primary rounded-pill me-1"><span class="font-monospace">12:34</span></span> -->
+          <span class="badge text-bg-primary rounded-pill me-1"><span class="font-monospace">{{ timeString(message.receivedTime)}}</span></span>
         </li>
         <li v-if="messages.length === 0" class="list-group-item d-flex justify-content-between align-items-start">
           <div>
@@ -99,8 +95,8 @@
 </template>
 
 <script>
+import { arrayRemoveElement, timeString } from '@/functions/Utils';
 import { useAuthStore } from '@/stores/auth';
-import { useAppControllerStore } from '@/stores/appController';
 import { useWsConnectionStore } from '@/stores/wsConnectionStore';
 
 export default {
@@ -108,21 +104,20 @@ export default {
   data() {
     return {
       authStore: useAuthStore(),
-      appController: useAppControllerStore(),
       wsConnectionStore: useWsConnectionStore(),
 
       currentRoom: null,
+      roomList: [],
       users: {},
       messages: [],
       roomMessageInput: '',
     };
   },
   computed: {
-    isInGame() {
-      return this.gameController?.isInGame ?? false;
-    },
   },
   methods: {
+    timeString,
+
     sendRoomMessage(event) {
       event.preventDefault();
 
@@ -134,7 +129,14 @@ export default {
       this.sendWsData('chat', { message: this.roomMessageInput });
       this.roomMessageInput = '';
     },
+    joinRoom(roomId) {
+      this.sendWsData('joinRoom', { roomId: roomId });
+    },
+    leaveRoom() {
+      this.sendWsData('leaveRoom', {});
+    },
     pushMessage(message) {
+      message.receivedTime = new Date();
       this.messages.push(message);
       this.$nextTick(() => {
         this.$refs.messagesList.scrollTop = this.$refs.messagesList.scrollHeight;
@@ -175,6 +177,18 @@ export default {
           arrayRemoveElement(this.currentRoom.users, data.data.userId);
           delete this.users[data.data.userId];
         }
+      } else if (data.type === 'privateRoomChangedStatus') {
+        if (data.data?.room !== undefined) {
+          this.roomList = this.roomList.map(room => {
+            if (room.id === data.data.room.id) {
+              return {
+                ...room,
+                players: data.data.room.players,
+              };
+            }
+            return room;
+          });
+        }
       } else if (data.type === 'roomData') {
         if (data.data?.room !== undefined) {
           this.currentRoom = {
@@ -195,9 +209,6 @@ export default {
         // if(data.data?.lobbyUsers !== undefined)
         //   this.users = data.data.lobbyUsers;
       } else {
-        if(this.gameController.handleMessage(data)) {
-          return;
-        }
         console.log('Otrzymano nieobsłużoną wiadomość z serwera: ', data);
       }
     },

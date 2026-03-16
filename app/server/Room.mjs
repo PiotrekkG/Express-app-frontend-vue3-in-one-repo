@@ -1,4 +1,6 @@
+import SimpleSendData from "./SimpleSendData.mjs";
 import User from "./User.mjs";
+import Log from "./Log.mjs";
 
 export default class Room extends SimpleSendData {
     /** @type {User[]} */
@@ -40,6 +42,10 @@ export default class Room extends SimpleSendData {
             const logInfo = new Log('userLeave', { userId: user.id });
             this.sendToAll(logInfo);
         }
+    }
+
+    hasPlayer(user) {
+        return this.users.includes(user);
     }
 
     currentUsers() {

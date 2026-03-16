@@ -3,7 +3,7 @@ import Log from "./Log.mjs";
 import GameManager from "./RoomManager.mjs";
 
 export default class User extends SimpleSendData {
-    constructor(socket, id, name, skinId) {
+    constructor(socket, id, name) {
         super();
         this.socket = socket;
 

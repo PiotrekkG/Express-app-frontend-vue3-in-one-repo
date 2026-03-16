@@ -19,6 +19,8 @@ GameManager.addPrivateRoom();
 GameManager.addPrivateRoom();
 
 const connectedUsers = {};
+const DISCONNECT_WHEN_LOGGED_FROM_ANOTHER_PLACE = false; // if true, user will be disconnected when another user with same id connects (useful when user has multiple tabs open or logged in from multiple devices)
+const ALLOW_ORIGIN = ["https://example.com", "http://localhost", "http://localhost:8888", "http://localhost:3000", "http://localhost:5173", "file://"];
 
 export function disconnectUserById(userId, reason = "unknown") {
     const socket = connectedUsers[userId];
@@ -57,37 +59,28 @@ export default function websocketApp(httpServer) {
     }
 
     function onWsRequest(/** @type {websocket.request} */ request) {
-
         // accept connection - you should check 'request.origin' to
         // make sure that client is connecting from your website
         // (http://en.wikipedia.org/wiki/Same_origin_policy)
-        // if(request.origin !== "https://tremle.pl" && request.origin !== null && request.origin !== "file://"){
-
-        // if (!(request.origin == "https://km2023.pl" || request.origin == "http://localhost:3000")) {
-        //     logInfo("info", `Rejecting connection [${socket.ip}, ${request.origin}].`);
-
-        //     request.reject();
-        //     totalConnections.fails++;
-
-        //     //socket.connection = request.reject();
-
-        //     return;
-        // }
+        if( !ALLOW_ORIGIN.includes(request.origin) && !ALLOW_ORIGIN.some(allowedOrigin => request.origin.startsWith(allowedOrigin)) ) {
+            logInfo("info", `Rejecting connection [${socket.ip}, ${request.origin}] - origin not allowed.`);
+            request.reject();
+            return;
+        }
         
         // get session
         sessionParser(request.httpRequest, {}, function () {
-            // const user = request.httpRequest.session.user;
-            // const userId = user.id;
-            // console.log('Received WebSocket request from origin ' + request.origin, 'session: ', (request.httpRequest.session ?? 'brak!'));
             if (!request.httpRequest.session || !request.httpRequest.session.user) {
-                logInfo("info", `Rejecting connection [${request.remoteAddress}, ${request.origin}] - no session or user.`);
+                logInfo("info", `Rejecting connection [${request.remoteAddress}, ${request.origin}] - no active session/user (not logged).`);
                 request.reject(401, 'Unauthorized');
                 return;
             }
+
+            const id = DISCONNECT_WHEN_LOGGED_FROM_ANOTHER_PLACE ? request.httpRequest.session.user.id : crypto.randomUUID();
             
             // sessionParser(request.httpRequest, {}, function () {
             var socket = {
-                id: request.httpRequest?.session?.user?.id ?? crypto.randomUUID(),
+                id: id,
                 connection: request.accept(null, request.origin),
                 ip: request.remoteAddress,
                 send: (/** @type {string|object} */ message) => {
@@ -103,7 +96,8 @@ export default function websocketApp(httpServer) {
                 user: null,
             };
 
-            if(connectedUsers[socket.id] !== undefined) {
+
+            if(DISCONNECT_WHEN_LOGGED_FROM_ANOTHER_PLACE && connectedUsers[socket.id] !== undefined) {
                 // logInfo("info", `Kicking client [${socket.id}, ip=${connectedUsers[socket.id].ip}] - logged from another place [ip=${socket.ip}]`);
                 connectedUsers[socket.id].send({ type: "disconnect", data: { reason: "loggedFromAnotherPlace" } });
                 GameManager.getUserById(socket.id)?.quit();
@@ -112,9 +106,9 @@ export default function websocketApp(httpServer) {
             connectedUsers[socket.id] = socket;
 
 
-            const user = new User(socket, socket.id, request.httpRequest?.session?.user?.username ?? socket.id, request.httpRequest?.session?.user?.skinId ?? 0);
+            const user = new User(socket, socket.id, request.httpRequest?.session?.user?.username ?? socket.id);
             socket.user = user;
-            const room = GameManager.getPlayerRoom(user.id);
+            const room = GameManager.getPlayerRoom(socket.id);
             if(room) {
                 user.joinRoom(room);
             } else {

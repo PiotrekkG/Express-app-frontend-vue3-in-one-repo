@@ -1,0 +1,48 @@
+{
+  "name": "express-app-frontend-vue3-in-one-repo",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/PiotrekkG/Express-app-frontend-vue3-in-one-repo#readme",
+  "bugs": {
+    "url": "https://github.com/PiotrekkG/Express-app-frontend-vue3-in-one-repo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PiotrekkG/Express-app-frontend-vue3-in-one-repo.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "GitHub@PiotrekkG",
+  "private": false,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./index.js --watch ./server",
+    "dev": "vite serve ./front --config ./front/vite.config.js --port 5173",
+    "serverTest": "node ./server/server.js",
+    "outputBuild": "vite build ./front --config ./front/vite.config.js --outDir ../frontOutput --base ./"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "canvas": "^3.2.1",
+    "express": "^5.2.1",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.19.0",
+    "http-errors": "^2.0.1",
+    "multer": "^2.1.0",
+    "mysql2": "^3.18.1",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.29",
+    "vue-router": "^5.0.3",
+    "websocket": "^1.0.35"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.4",
+    "nodemon": "^3.1.14",
+    "vite": "^7.3.1",
+    "vite-plugin-vue-devtools": "^8.0.6"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}
