@@ -64,3 +64,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 // import 'bootstrap/dist/js/bootstrap.bundle.min.js' - remember: do not use it - import modals and other functions directly in components code!
 import 'bootstrap'
+
+#### Use for sessions SqliteSQL instead of MySQL
+Go to file app\server\expressApp.mjs and swap comments in lines 8-9 and lines 28-46.
+Remember to install dependency: connect-sqlite3 (`npm install connect-sqlite3`)
+

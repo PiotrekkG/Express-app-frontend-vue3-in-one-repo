@@ -47,7 +47,7 @@ try {
 
     app.use(sessionParser);
 } catch (error) {
-    console.error('MySQL session store not initialized:', error);
+    console.info('MySQL session store not initialized: ' + error.message);
     sessionParser = session({
         key: 'plsid',
         cookie: { maxAge: sessionsdbConfig.expiration },
