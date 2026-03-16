@@ -1,6 +1,6 @@
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+// import 'bootstrap/dist/js/bootstrap.bundle.min.js' - remember: do not use it - import modals and other functions directly in components code!
 import 'bootstrap'
 
 import { createApp } from 'vue'
